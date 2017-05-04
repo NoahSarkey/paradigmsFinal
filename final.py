@@ -5,9 +5,12 @@
 # May 10, 2017
 
 import pygame
+import os
+import sys
+from pygame.locals import *
 
 # Global Variables
-turn = 1
+
 
 #############################################################
 
@@ -22,7 +25,7 @@ turn = 1
 
 def endGameScreen(self, winner):
 	# this function will end the game and leave the screen up with the end game being shown
-
+	return 0
 #############################################################
 
 # Game AI which determines whether or not someone has won (needs to be determined how we will make use of the variables)
@@ -101,31 +104,39 @@ def checkWin(self, board):
 
 ################################################################
 
-def boardChecking(self, player, row, column):
+def boardChecking(player, row, column, board):
 	# Check if the desired spot on the board is filled
 	if board[row - 1][column - 1] == 0:
 		board[row - 1][column - 1] = player
+		return 1
 	else:
 		print("INVALID ENTRY PICK AGAIN!")
-
-	# Take care of determining whose turn it is
-	global turn
-	if turn == 1:
-		turn = 2
-	else:
-		turn = 1
+		return 0
 
 ################################################################
 
 # The main playing space for the final game
-def Game(self):
-	pygame.init()
+def Game():
+	# Declare variables
+	player = 1
 	winner = 0
+
+	# create the board
+	board = [[0]*3 for _ in range(3)]
+	print(board)
+
+	#pygame.init()
+
 
 
 	# keep running the gamer until we have a winner
-	while !winner:
-		arr = boardChecking()
+	while winner == 0:
+
+		# detect mouse click to choose which row and column you are currently in
+		
+
+		# The math side of the program
+		arr = boardChecking(player, row, column, board)
 		winner = checkWin()
 		pygame.display.update()
 
@@ -136,4 +147,5 @@ def Game(self):
 ################################################################
 
 if __name__ == "__main__":
+	print("made it to main")
 	Game()
