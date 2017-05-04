@@ -9,9 +9,27 @@ import pygame
 # Global Variables
 turn = 1
 
+#############################################################
+
+
+
+
+
+
+
+
+#############################################################
+
+def endGameScreen(self, winner):
+	# this function will end the game and leave the screen up with the end game being shown
+
+#############################################################
+
 # Game AI which determines whether or not someone has won (needs to be determined how we will make use of the variables)
 def checkWin(self, board):
 	# Checks Column
+	i = 0
+	j = 0
 	while j < 3:
 		kill = 0
 		sum = 0
@@ -23,10 +41,14 @@ def checkWin(self, board):
 		if kill == 0 and (sum == 3 or sum == 6):
 			if sum == 3:
 				print("Player 1 WIN!")
+				return 1
 			else:
 				print("Player 2 WIN!")
+				return 2
 		j = j + 1
 	# Checks Row
+	i = 0
+	j = 0
 	while i < 3:
 		kill = 0
 		sum = 0
@@ -38,12 +60,15 @@ def checkWin(self, board):
 		if kill == 0 and (sum == 3 or sum == 6):
 			if sum == 3:
 				print("Player 1 WIN!")
+				return 1
 			else:
 				print("Player 2 WIN!")
+				return 2
 		i = i + 1
 	# Check Diagonals (Top left to bottom right)
+	kill = 0
+	k = 0
 	while k < 3:
-		kill = 0
 		sum = 0
 		if board[k][k] == 0:
 			kill = 1
@@ -52,12 +77,14 @@ def checkWin(self, board):
 		if kill == 0 and (sum == 3 or sum == 6):
 			if sum == 3:
 				print("Player 1 WIN!")
+				return 1
 			else:
 				print("Player 2 WIN!")
+				return 2
 	# Check Diagonals (Bottom left to top right)
 	k = 2
+	kill = 0
 	while k >= 0:
-		kill = 0
 		sum = 0
 		if board[k][k] == 0:
 			kill = 1
@@ -66,8 +93,13 @@ def checkWin(self, board):
 		if kill == 0 and (sum == 3 or sum == 6):
 			if sum == 3:
 				print("Player 1 WIN!")
+				return 1
 			else:
 				print("Player 2 WIN!")
+				return 2
+	return 0	# nobody has won yet
+
+################################################################
 
 def boardChecking(self, player, row, column):
 	# Check if the desired spot on the board is filled
@@ -83,14 +115,25 @@ def boardChecking(self, player, row, column):
 	else:
 		turn = 1
 
+################################################################
 
 # The main playing space for the final game
 def Game(self):
-	# make the turn
+	pygame.init()
+	winner = 0
 
-	arr = boardChecking()
-	checkWin()
+
+	# keep running the gamer until we have a winner
+	while !winner:
+		arr = boardChecking()
+		winner = checkWin()
+		pygame.display.update()
+
+
+	# provide the user with the end game screen
+	endGameScreen(winner)
+
+################################################################
 
 if __name__ == "__main__":
-	h= Game()
-	h.run()
+	Game()
