@@ -1,0 +1,94 @@
+# Sam Mustipher and Noah Sarkey
+# Import a library of functions called 'pygame'
+import pygame
+import sys
+import os
+from math import pi
+
+# x's
+class Player1(object):
+    def __init__(self, gs):
+        self.gs = gs
+
+class Boxes(object):
+    def __init__(self, gs):
+        self.gs = gs
+        self.boxes = []
+        
+        # Initializing List of Rects to be used for collision
+
+        # Top Row Rects
+        for i in range(3):
+            self.boxes.append([i*200,0,200,200])
+        # Middle Row Rects:
+        for i in range(3):
+            self.boxes.append([i*200,200,200,200])
+        # Bottom Row Rects
+        for i in range(3):
+            self.boxes.append([i*200,400,200,200])
+
+class Board:
+        def main(self):
+                # Initialize the game engine
+                pygame.init()
+                self.turn = 1
+                 
+                # Define the colors we will use in RGB format
+                BLACK = (  0,   0,   0)
+                WHITE = (255, 255, 255)
+                BLUE =  (  0,   0, 255)
+                GREEN = (  0, 255,   0)
+                RED =   (255,   0,   0)
+                 
+                # Set the height and width of the screen
+                size = [600, 600]
+                screen = pygame.display.set_mode(size)
+                 
+                pygame.display.set_caption("Tic Tac Toe")
+                myTiles = Boxes(self)
+
+                #Loop until the user clicks the close button.
+                done = False
+                clock = pygame.time.Clock()
+                 
+                while not done:
+                 
+                    # This limits the while loop to a max of 10 times per second.
+                    # Leave this out and we will use all CPU we can.
+                    clock.tick(10)
+                     
+                    for event in pygame.event.get(): # User did something
+                        if event.type == pygame.QUIT: # If user clicked close
+                            done=True # Flag that we are done so we exit this loop
+                        elif event.type == pygame.MOUSEMOTION:
+                            pos = pygame.mouse.get_pos()
+                            if self.turn == 1:
+                                print ("hover x")
+                        elif event.type == pygame.MOUSEBUTTONDOWN:
+                            pos = pygame.mouse.get_pos()
+                            if self.turn == 1:
+                                print ("Hard Place X")
+                                for box in myTiles.boxes:
+                                    tempRect = pygame.Rect(box)
+                                    if tempRect.collidepoint(pos[0], pos[1]):
+                                       print ("It's a hit")
+                                
+                 
+                    # Clear the screen and set the screen background
+                    screen.fill(WHITE)
+                    
+                    for box in myTiles.boxes:
+                        pygame.draw.rect(screen, BLACK, box, 2)
+                    
+                    # Go ahead and update the screen with what we've drawn.
+                    # This MUST happen after all the other drawing commands.
+                    pygame.display.flip()
+                 
+                # Be IDLE friendly
+                pygame.quit()
+
+
+
+if __name__ == '__main__':
+        Game = Board()
+        Game.main()
