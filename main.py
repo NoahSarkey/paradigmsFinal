@@ -109,11 +109,8 @@ class Board:
                     
                     for box in self.myTiles.boxes:
                         pygame.draw.rect(self.screen, BLACK, box, 2)
-                    
-                    for box in myTiles.boxes:
-                        pygame.draw.rect(screen, BLACK, box, 2)
                    
-                    if checkWin() != 0:
+                    if self.checkWin() != 0:
                         print("PLAYER ", checkWin(), " WINS!")
 
                     # Go ahead and update the screen with what we've drawn.
