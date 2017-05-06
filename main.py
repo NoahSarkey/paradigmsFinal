@@ -87,6 +87,79 @@ class Board:
                 # Be IDLE friendly
                 pygame.quit()
 
+        def checkWin(self):
+                # Checks Column
+                i = 0
+                j = 0
+                while j < 3:
+                    kill = 0
+                    sum = 0
+                    while i < 3:
+                        if self.board_to_check[i][j] == 0:
+                            kill = 1
+                        sum = sum + self.board_to_check[i][j]
+                        i = i + 1
+                    if kill == 0 and (sum == 3 or sum == 6):
+                        if sum == 3:
+                            print("Player 1 WIN!")
+                            return 1
+                        else:
+                            print("Player 2 WIN!")
+                            return 2
+                    j = j + 1
+                # Checks Row
+                i = 0
+                j = 0
+                while i < 3:
+                    kill = 0
+                    sum = 0
+                    while j < 3:
+                        if self.board_to_check[i][j] == 0:
+                            kill = 1
+                        sum = sum + self.board_to_check[i][j]
+                        j = j + 1
+                    if kill == 0 and (sum == 3 or sum == 6):
+                        if sum == 3:
+                            print("Player 1 WIN!")
+                            return 1
+                        else:
+                            print("Player 2 WIN!")
+                            return 2
+                    i = i + 1
+                # Check Diagonals (Top left to bottom right)
+                kill = 0
+                k = 0
+                while k < 3:
+                    sum = 0
+                    if self.board_to_check[k][k] == 0:
+                        kill = 1
+                    sum = sum + self.board_to_check[k][k]
+                    k = k + 1
+                    if kill == 0 and (sum == 3 or sum == 6):
+                        if sum == 3:
+                            print("Player 1 WIN!")
+                            return 1
+                        else:
+                            print("Player 2 WIN!")
+                            return 2
+                # Check Diagonals (Bottom left to top right)
+                k = 2
+                kill = 0
+                while k >= 0:
+                    sum = 0
+                    if self.board_to_check[k][k] == 0:
+                        kill = 1
+                    sum = sum + self.board_to_check[k][k]
+                    k = k - 1
+                    if kill == 0 and (sum == 3 or sum == 6):
+                        if sum == 3:
+                            print("Player 1 WIN!")
+                            return 1
+                        else:
+                            print("Player 2 WIN!")
+                            return 2
+                return 0	# nobody has won yet
+                
 if __name__ == '__main__':
         Game = Board()
         Game.main()
