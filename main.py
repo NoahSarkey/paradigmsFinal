@@ -84,8 +84,8 @@ class Board:
                             done=True # Flag that we are done so we exit this loop
                         elif event.type == pygame.MOUSEMOTION:
                             pos = pygame.mouse.get_pos()
-                            if self.turn == 1:
-                                print ("hover x")
+                            #if self.turn == 1:
+                            #print ("hover x")
                         elif event.type == pygame.MOUSEBUTTONDOWN:
                             pos = pygame.mouse.get_pos()
                             for box in self.myTiles.boxes:
@@ -110,9 +110,11 @@ class Board:
                     for box in self.myTiles.boxes:
                         pygame.draw.rect(self.screen, BLACK, box, 2)
                    
+                    print("CHECK WIN? ", self.checkWin())
+                    print(self.board_to_check)
                     if self.checkWin() != 0:
-                        print("PLAYER ", checkWin(), " WINS!")
-
+                        print("PLAYER ", self.checkWin(), " WINS!")
+                        done = True
                     # Go ahead and update the screen with what we've drawn.
                     # This MUST happen after all the other drawing commands.
                     pygame.display.flip()
@@ -122,16 +124,19 @@ class Board:
 
         def checkWin(self):
                 # Checks Column
-                i = 0
                 j = 0
+                print("COLUMN")
                 while j < 3:
                     kill = 0
                     sum = 0
+                    i = 0
                     while i < 3:
                         if self.board_to_check[i][j] == 0:
                             kill = 1
+                        print(i, " ", j, " ", sum)
                         sum = sum + self.board_to_check[i][j]
                         i = i + 1
+                    print("FINAL ITERATION SUM: ", sum)
                     if kill == 0 and (sum == 3 or sum == 6):
                         if sum == 3:
                             print("Player 1 WIN!")
@@ -142,10 +147,10 @@ class Board:
                     j = j + 1
                 # Checks Row
                 i = 0
-                j = 0
                 while i < 3:
                     kill = 0
                     sum = 0
+                    j = 0
                     while j < 3:
                         if self.board_to_check[i][j] == 0:
                             kill = 1
@@ -162,8 +167,8 @@ class Board:
                 # Check Diagonals (Top left to bottom right)
                 kill = 0
                 k = 0
+                sum = 0
                 while k < 3:
-                    sum = 0
                     if self.board_to_check[k][k] == 0:
                         kill = 1
                     sum = sum + self.board_to_check[k][k]
@@ -178,8 +183,8 @@ class Board:
                 # Check Diagonals (Bottom left to top right)
                 k = 2
                 kill = 0
+                sum = 0
                 while k >= 0:
-                    sum = 0
                     if self.board_to_check[k][k] == 0:
                         kill = 1
                     sum = sum + self.board_to_check[k][k]
