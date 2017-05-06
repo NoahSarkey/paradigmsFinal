@@ -3,6 +3,7 @@
 import pygame
 import sys
 import os
+import time
 from math import pi
 
 WHITE = (255,255,255)
@@ -19,6 +20,15 @@ class Player1(object):
     def drawO(self, centerx, centery):
         pygame.draw.circle(self.gs.screen, BLUE, (centerx, centery), 50, 2 )
 
+    def hoverO(self, centerx, centery):
+        print ("here")
+        pygame.draw.circle(self.gs.screen, BLUE, (centerx, centery), 50, 2 )
+        print("also here")
+        time.sleep(1)
+        print ("it lit")
+        pygame.draw.circle(self.gs.screen, WHITE, (centerx, centery), 50, 2 )
+
+# x's 
 class Player2(object):
     def __init__(self, gs):
         self.gs = gs
@@ -26,6 +36,13 @@ class Player2(object):
     def drawX(self, centerx, centery):
         pygame.draw.line(self.gs.screen, RED, (centerx - 50, centery - 50), (centerx + 50, centery + 50), 2)
         pygame.draw.line(self.gs.screen, RED, (centerx - 50, centery + 50), (centerx + 50, centery - 50), 2)
+
+    def hoverX(self, centerx, centery):
+        pygame.draw.line(self.gs.screen, RED, (centerx - 50, centery - 50), (centerx + 50, centery + 50), 2)
+        pygame.draw.line(self.gs.screen, RED, (centerx - 50, centery + 50), (centerx + 50, centery - 50), 2)
+        time.sleep(1)
+        pygame.draw.line(self.gs.screen, WHITE, (centerx - 50, centery - 50), (centerx + 50, centery + 50), 2)
+        pygame.draw.line(self.gs.screen, WHITE, (centerx - 50, centery + 50), (centerx + 50, centery - 50), 2)
 
 class Boxes(object):
     def __init__(self, gs):
@@ -61,6 +78,7 @@ class Board:
                 # Set the height and width of the screen
                 self.size = [600, 600]
                 self.screen = pygame.display.set_mode(self.size)
+                self.surface = pygame.display.get_surface()
                  
                 pygame.display.set_caption("Tic Tac Toe")
                 self.myTiles = Boxes(self)
@@ -84,8 +102,20 @@ class Board:
                             done=True # Flag that we are done so we exit this loop
                         elif event.type == pygame.MOUSEMOTION:
                             pos = pygame.mouse.get_pos()
-                            #if self.turn == 1:
-                            #print ("hover x")
+                            for box in self.myTiles.boxes:
+                                tempRect = pygame.Rect(box)
+                                if tempRect.collidepoint(pos[0], pos[1]):
+                                    xPosition = pos[0]/200
+                                    yPosition = pos[1]/200
+                                    xPosition = int(xPosition)
+                                    yPosition = int(yPosition)
+                                    if self.board_to_check[xPosition][yPosition] == 0:
+                                        self.surface.fill(WHITE, tempRect)
+                                        if self.turn == 1:
+                                            self.surface.fill(BLUE, tempRect)
+                                        else:
+                                            self.surface.fill(RED, tempRect)
+                                            # self.player2.hoverX(tempRect.centerx, tempRect.centery)
                         elif event.type == pygame.MOUSEBUTTONDOWN:
                             pos = pygame.mouse.get_pos()
                             for box in self.myTiles.boxes:
@@ -97,6 +127,7 @@ class Board:
                                     yPosition = int(yPosition)
                                     # print("HERE ARE THE VALUES: ", xPosition, " ", yPosition)
                                     if self.board_to_check[xPosition][yPosition] == 0:
+                                        self.surface.fill(WHITE, tempRect)
                                         if self.turn == 1:
                                             self.player1.drawO(tempRect.centerx, tempRect.centery)
                                             self.board_to_check[xPosition][yPosition] = 1
@@ -109,9 +140,9 @@ class Board:
                     
                     for box in self.myTiles.boxes:
                         pygame.draw.rect(self.screen, BLACK, box, 2)
-                   
-                    print("CHECK WIN? ", self.checkWin())
-                    print(self.board_to_check)
+                        
+                    #print("CHECK WIN? ", self.checkWin())
+                    #print(self.board_to_check)
                     if self.checkWin() != 0:
                         print("PLAYER ", self.checkWin(), " WINS!")
                         done = True
@@ -125,7 +156,7 @@ class Board:
         def checkWin(self):
                 # Checks Column
                 j = 0
-                print("COLUMN")
+                # print("COLUMN")
                 while j < 3:
                     kill = 0
                     sum = 0
@@ -133,10 +164,10 @@ class Board:
                     while i < 3:
                         if self.board_to_check[i][j] == 0:
                             kill = 1
-                        print(i, " ", j, " ", sum)
+                        # print(i, " ", j, " ", sum)
                         sum = sum + self.board_to_check[i][j]
                         i = i + 1
-                    print("FINAL ITERATION SUM: ", sum)
+                    # print("FINAL ITERATION SUM: ", sum)
                     if kill == 0 and (sum == 3 or sum == 6):
                         if sum == 3:
                             print("Player 1 WIN!")
@@ -185,17 +216,17 @@ class Board:
                 w = 0
                 kill = 0
                 sum = 0
-                print("ERROR CHECKING DIAG -------")
+                # print("ERROR CHECKING DIAG -------")
                 while k >= 0:
                     #sum = 0
                     #while w < 3:
-                    print("the secret lies with charlotte")
-                    print("k: ", k, " w: ", w, " sum: ", sum, " kill: ", kill)
+                    # print("the secret lies with charlotte")
+                    # print("k: ", k, " w: ", w, " sum: ", sum, " kill: ", kill)
                     if self.board_to_check[k][w] == 0:
                         kill = 1
                     sum = sum + self.board_to_check[k][w]
                     w = w + 1
-                    print("heere at the wall")
+                    # print("heere at the wall")
                     k = k - 1
                 if kill == 0 and (sum == 3 or sum == 6):
                     if sum == 3:
