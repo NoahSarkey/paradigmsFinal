@@ -79,7 +79,10 @@ class Board:
                     
                     for box in myTiles.boxes:
                         pygame.draw.rect(screen, BLACK, box, 2)
-                    
+                   
+                    if checkWin() != 0:
+                        print("PLAYER ", checkWin(), " WINS!")
+
                     # Go ahead and update the screen with what we've drawn.
                     # This MUST happen after all the other drawing commands.
                     pygame.display.flip()
