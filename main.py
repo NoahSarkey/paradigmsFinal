@@ -173,29 +173,36 @@ class Board:
                         kill = 1
                     sum = sum + self.board_to_check[k][k]
                     k = k + 1
-                    if kill == 0 and (sum == 3 or sum == 6):
-                        if sum == 3:
-                            print("Player 1 WIN!")
-                            return 1
-                        else:
-                            print("Player 2 WIN!")
-                            return 2
+                if kill == 0 and (sum == 3 or sum == 6):
+                    if sum == 3:
+                        print("Player 1 WIN!")
+                        return 1
+                    else:
+                        print("Player 2 WIN!")
+                        return 2
                 # Check Diagonals (Bottom left to top right)
                 k = 2
+                w = 0
                 kill = 0
                 sum = 0
+                print("ERROR CHECKING DIAG -------")
                 while k >= 0:
-                    if self.board_to_check[k][k] == 0:
-                        kill = 1
-                    sum = sum + self.board_to_check[k][k]
-                    k = k - 1
-                    if kill == 0 and (sum == 3 or sum == 6):
-                        if sum == 3:
-                            print("Player 1 WIN!")
-                            return 1
-                        else:
-                            print("Player 2 WIN!")
-                            return 2
+                    #sum = 0
+                    while w < 3:
+                        print("the secret lies with charlotte")
+                        print("k: ", k, " w: ", w, " sum: ", sum, " kill: ", kill)
+                        if self.board_to_check[k][w] == 0:
+                            kill = 1
+                        sum = sum + self.board_to_check[k][w]
+                        w = w + 1
+                        print("heere at the wall")
+                if kill == 0 and (sum == 3 or sum == 6):
+                    if sum == 3:
+                        print("Player 1 WIN!")
+                        return 1
+                    else:
+                        print("Player 2 WIN!")
+                        return 2
                 return 0	# nobody has won yet
                 
 if __name__ == '__main__':
