@@ -65,6 +65,8 @@ class Board:
         def main(self):
                 # Initialize the game engine
                 pygame.init()
+                pygame.font.init()
+                myfont = pygame.font.SysFont('Comic Sans MS', 100)
                 self.turn = 1
                 
                 '''
@@ -115,6 +117,7 @@ class Board:
                                             self.surface.fill(BLUE, tempRect)
                                         else:
                                             self.surface.fill(RED, tempRect)
+                                        #self.surface.fill(WHITE, tempRect)
                                             # self.player2.hoverX(tempRect.centerx, tempRect.centery)
                         elif event.type == pygame.MOUSEBUTTONDOWN:
                             pos = pygame.mouse.get_pos()
@@ -144,11 +147,21 @@ class Board:
                     #print("CHECK WIN? ", self.checkWin())
                     #print(self.board_to_check)
                     if self.checkWin() != 0:
-                        print("PLAYER ", self.checkWin(), " WINS!")
+                        # print("PLAYER ", self.checkWin(), " WINS!")
+                        winner = "PLAYER" + str(self.checkWin()) + " WINS!"
+                        if self.checkWin() == 1:
+                            textsurface = myfont.render(winner, False, GREEN)
+                            self.screen.fill(WHITE)
+                            self.screen.blit(textsurface, (0,300))
+                        else:
+                            textsurface = myfont.render(winner, False, GREEN)
+                            self.screen.fill(WHITE)
+                            self.screen.blit(textsurface, (0,300))
                         done = True
                     # Go ahead and update the screen with what we've drawn.
                     # This MUST happen after all the other drawing commands.
                     pygame.display.flip()
+                    pygame.time.delay(2500)
                  
                 # Be IDLE friendly
                 pygame.quit()
