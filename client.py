@@ -173,8 +173,8 @@ class Board:
                                     # print("HERE ARE THE VALUES: ", xPosition, " ", yPosition)
                                     if self.board_to_check[v][w] == 0:
 					if self.turn == 2:
-					    cX = "clickedYCoordinate:"+clickedX+"\n"
-					    cY = "clickedYCoordinate:"+clickedY+"\n"
+					    cX = "clickedYCoordinate:"+str(clickedX)+"\n"
+					    cY = "clickedYCoordinate:"+str(clickedY)+"\n"
 					    self.conn.sendLine(cX)
 					    self.conn.sendLine(cY)
                                         self.surface.fill(WHITE, tempRect)

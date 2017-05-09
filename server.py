@@ -157,17 +157,20 @@ class Board:
 				    if self.turn == 1:
 					clickedX = xPosition
 					clickedY = yPosition
-                                    print("HERE ARE THE VALUES of click: ", xPosition, " ", yPosition)
+                                    print "HERE ARE THE VALUES of click: ", xPosition, " ", yPosition
                                     v = clickedX
                                     w = clickedY
                                     if self.board_to_check[v][w] == 0:
 					if self.turn == 1:
-					    cX = "clickedXCoordinate:"+xPosition+"\n"
-					    cY = "clickedYCoordinate:"+yPosition+"\n"
+					    print "trying to send coordinates"
+					    cX = "clickedXCoordinate:"+str(xPosition)+"\n"
+					    cY = "clickedYCoordinate:"+str(yPosition)+"\n"
+					    print cX, " ", cY
 					    self.conn.sendLine(cX)
 					    self.conn.sendLine(cY)
+					    print "made it"
                                         self.surface.fill(WHITE, tempRect)
-                                        if elf.turn == 1:
+                                        if self.turn == 1:
                                             self.player1.drawO(tempRect.centerx, tempRect.centery)
                                             self.board_to_check[v][w] = 1
                                             self.turn = 2
