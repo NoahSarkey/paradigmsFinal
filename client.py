@@ -68,6 +68,9 @@ class Boxes(object):
             self.boxes.append([i*200,400,200,200])
 
 class Board:
+	def __init__(self, conn):
+		self.conn = conn
+
         def main(self):
                 # Initialize the game engine
                 pygame.init()
@@ -95,15 +98,15 @@ class Board:
 
                 #Loop until the user clicks the close button.
                 done = False
-                clock = pygame.time.Clock()
+                self.clock = pygame.time.Clock()
                 self.board_to_check = [[0]*3 for _ in range(3)]
                 self.screen.fill(WHITE)
                  
-                while not done:
-                 
+                #while not done:
+                for i in range(1):
                     # This limits the while loop to a max of 10 times per second.
                     # Leave this out and we will use all CPU we can.
-                    clock.tick(10)
+                    self.clock.tick(10)
                      
                     for event in pygame.event.get(): # User did something
                         if event.type == pygame.QUIT: # If user clicked close
@@ -169,6 +172,13 @@ class Board:
                     pygame.display.flip()
                     pygame.time.delay(2500)
                  
+
+                    if self.turn == 1:
+                        self.turn = 2
+		    else:
+			self.turn = 1
+                    self.conn.transport.write(self.turn)
+
                 # Be IDLE friendly
                 pygame.quit()
 
@@ -257,24 +267,24 @@ class Board:
                 return 0	# nobody has won yet
 
 class ClientConnection(Protocol):
-	def __init__(self, addr):
-		#print "in init"
-		self.addr = addr
-
+	def __init__(self):
+		print "in init"
+		self.g = Board(self)
 	def connectionMade(self):
-		#print "data written"
+		print "data written"
 		self.transport.write("Connect")
-
-	def dataReceived(self):
-		return 0
+		self.g.main()
+	def dataReceived(self, data):
+		print data
 
 class ClientConnectionFactory(ClientFactory):
+	def __init__(self):
+		self.conn = ClientConnection()
 	def buildProtocol(self, addr):
-		#print "here"
-		return ClientConnection(addr)
+		return self.conn
 
 if __name__ == '__main__':
-	reactor.connectTCP("ash.campus.nd.edu", 40098, ClientConnectionFactory())
+	reactor.connectTCP("noahs-mbp.dhcp.nd.edu", 40098, ClientConnectionFactory())
 	reactor.run()
-        Game = Board()
-        Game.main()
+        #Game = Board()
+        #Game.main()
