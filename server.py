@@ -72,13 +72,14 @@ class Board:
 		self.conn = conn
 
         def main(self):
-		print "give it up kid"
+		#print "give it up kid"
                 # Initialize the game engine
                 pygame.init()
                 pygame.font.init()
                 myfont = pygame.font.SysFont('Comic Sans MS', 100)
                 self.turn = 1
-                
+                self.xx = 4
+                self.yy = 4
                 '''
                 # Define the colors we will use in RGB format
                 BLACK = (  0,   0,   0)
@@ -107,8 +108,8 @@ class Board:
 		lc.start(1/60)
 
 	def game_loop(self):
-		    print "got to game_loop"
-          	#for i in range(1):
+		    #print "got to game_loop"
+		#for i in range(1):
 		#while not done
                     # This limits the while loop to a max of 10 times per second.
                     # Leave this out and we will use all CPU we can.
@@ -117,16 +118,20 @@ class Board:
                     for event in pygame.event.get(): # User did something
                         if event.type == pygame.QUIT: # If user clicked close
                             done=True # Flag that we are done so we exit this loop
-                        elif event.type == pygame.MOUSEMOTION:
+                        elif event.type == pygame.MOUSEMOTION or self.turn == 2:
                             pos = pygame.mouse.get_pos()
                             for box in self.myTiles.boxes:
                                 tempRect = pygame.Rect(box)
                                 if tempRect.collidepoint(pos[0], pos[1]):
                                     xPosition = pos[0]/200
                                     yPosition = pos[1]/200
-                                    xPosition = int(xPosition)
-                                    yPosition = int(yPosition)
-                                    if self.board_to_check[xPosition][yPosition] == 0:
+                                    xPositionInteger = int(xPosition)
+                                    yPositionInteger = int(yPosition)
+                                    if self.board_to_check[xPositionInteger][yPositionInteger] == 0:
+                                        xx = "xx:"+xPositionInteger
+                                        yy = "yy:"+yPositionInteger
+                                        self.conn.transport.write(xx)
+                                        self.conn.transport.write(yy)
                                         self.surface.fill(WHITE, tempRect)
                                         if self.turn == 1:
                                             self.surface.fill(BLUE, tempRect)
@@ -154,6 +159,16 @@ class Board:
                                             self.player2.drawX(tempRect.centerx, tempRect.centery)
                                             self.board_to_check[xPosition][yPosition] = 2
                                             self.turn = 1
+                                    s = ""     
+            			    if self.turn == 2:
+                        		#self.turn = 1
+                        		s = "turnchange:2\n"
+                    		    else:
+                        		#self.turn = 2
+                        		s = "turnchange:1\n"
+                        		# "highlightmouse:4\n"
+            			    self.conn.transport.write(s)
+
                                         # pygame.draw.circle(self.screen, (250,250,250), (tempRect.centerx, tempRect.centery), 10)
                     
                     for box in self.myTiles.boxes:
@@ -177,14 +192,7 @@ class Board:
                     # This MUST happen after all the other drawing commands.
                     pygame.display.flip()
                     #pygame.time.delay(2500)
-                 
-		    #if self.turn == 2:
-			#self.turn = 1
-		    #else:
-			#self.turn = 2
-		    # "turnchange:2\n"
-                    # "highlightmouse:4\n"
-		    #self.conn.transport.write(self.turn)
+               
 
 
                 # Be IDLE friendly
@@ -278,13 +286,20 @@ class ServerConnection(Protocol):
 	def __init__(self):
 		print "here 2"
 		self.g = Board(self)
-		print "we back here"
+		print "declared"
 	def connectionMade(self):
 		print "here 3"
 		self.g.main()
 	def dataReceived(self, data):
 		print "here 4"
 		print data
+                data = data.split(':')
+                if data[0] == "turnchange":
+                    self.turn = data[1]
+                elif data[0] == "xx":
+                    self.xPositionInteger = data[1]
+                elif data[0] == "yy":
+                    self.yPositionInteger = data[1]
 
 class ServerConnectionFactory(Factory):
 	def __init__(self):
@@ -292,7 +307,7 @@ class ServerConnectionFactory(Factory):
 	def buildProtocol(self, addr):
 		print"here"
 		return self.connection
-	                
+			
 if __name__ == '__main__':
 	reactor.listenTCP(40098, ServerConnectionFactory())
 	reactor.run()
