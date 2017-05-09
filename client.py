@@ -284,7 +284,7 @@ class ClientConnectionFactory(ClientFactory):
 		return self.conn
 
 if __name__ == '__main__':
-	reactor.connectTCP("noahs-mbp.dhcp.nd.edu", 40098, ClientConnectionFactory())
+	reactor.connectTCP("localhost", 40098, ClientConnectionFactory())
 	reactor.run()
         #Game = Board()
         #Game.main()

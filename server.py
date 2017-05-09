@@ -92,7 +92,7 @@ class Board:
                 self.screen = pygame.display.set_mode(self.size)
                 self.surface = pygame.display.get_surface()
                  
-                pygame.display.set_caption("Tic Tac Toe")
+                pygame.display.set_caption("Tic Tac Toe Server")
                 self.myTiles = Boxes(self)
                 self.player1 = Player1(self)
                 self.player2 = Player2(self)
@@ -103,14 +103,16 @@ class Board:
                 self.board_to_check = [[0]*3 for _ in range(3)]
                 self.screen.fill(WHITE)
                  
-		#lc = loopingCall(self.loop)
-		#lc.start(0.1)
+		lc = LoopingCall(self.game_loop)
+		lc.start(1/60)
 
-          	for i in range(1):
+	def game_loop(self):
+		    print "got to game_loop"
+          	#for i in range(1):
 		#while not done
                     # This limits the while loop to a max of 10 times per second.
                     # Leave this out and we will use all CPU we can.
-                    self.clock.tick(10)
+                    #self.clock.tick(10)
                      
                     for event in pygame.event.get(): # User did something
                         if event.type == pygame.QUIT: # If user clicked close
@@ -174,17 +176,19 @@ class Board:
                     # Go ahead and update the screen with what we've drawn.
                     # This MUST happen after all the other drawing commands.
                     pygame.display.flip()
-                    pygame.time.delay(2500)
+                    #pygame.time.delay(2500)
                  
-		    if self.turn == 2:
-			self.turn = 1
-		    else:
-			self.turn = 2
-		    self.conn.transport.write(self.turn)
+		    #if self.turn == 2:
+			#self.turn = 1
+		    #else:
+			#self.turn = 2
+		    # "turnchange:2\n"
+                    # "highlightmouse:4\n"
+		    #self.conn.transport.write(self.turn)
 
 
                 # Be IDLE friendly
-                pygame.quit()
+                #pygame.quit()
 
         def checkWin(self):
                 # Checks Column
