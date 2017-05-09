@@ -155,26 +155,36 @@ class Board:
                                         #self.surface.fill(WHITE, tempRect)
                                             # self.player2.hoverX(tempRect.centerx, tempRect.centery)
                                     #print "no loop C"
-                        elif event.type == pygame.MOUSEBUTTONDOWN and self.turn == 2:
+                        elif event.type == pygame.MOUSEBUTTONDOWN or self.turn == 1:
                             pos = pygame.mouse.get_pos()
                             #print "D"
                             for box in self.myTiles.boxes:
                                 tempRect = pygame.Rect(box)
-                                if tempRect.collidepoint(pos[0], pos[1]):
+                                if tempRect.collidepoint(pos[0], pos[1]) or self.turn == 1:
                                     xPosition = pos[0] / 200
                                     yPosition = pos[1] / 200
                                     xPosition = int(xPosition)
                                     yPosition = int(yPosition)
+				    if self.turn == 2:
+					clickedX = xPosition
+					clickedY = yPosition
+				    v = clickedX
+	 			    w = clickedY
                                     # print("HERE ARE THE VALUES: ", xPosition, " ", yPosition)
-                                    if self.board_to_check[xPosition][yPosition] == 0:
+                                    if self.board_to_check[v][w] == 0:
+					if self.turn == 2:
+					    cX = "clickedYCoordinate:"+clickedX+"\n"
+					    cY = "clickedYCoordinate:"+clickedY+"\n"
+					    self.conn.sendLine(cX)
+					    self.conn.sendLine(cY)
                                         self.surface.fill(WHITE, tempRect)
                                         if self.turn == 1:
                                             self.player1.drawO(tempRect.centerx, tempRect.centery)
-                                            self.board_to_check[xPosition][yPosition] = 1
+                                            self.board_to_check[v][w] = 1
                                             self.turn = 2
                                         else:
                                             self.player2.drawX(tempRect.centerx, tempRect.centery)
-                                            self.board_to_check[xPosition][yPosition] = 2
+                                            self.board_to_check[v][w] = 2
                                             self.turn = 1
                                         # pygame.draw.circle(self.screen, (250,250,250), (tempRect.centerx, tempRect.centery), 10)
                                         s = ""
@@ -313,21 +323,23 @@ class ClientConnection(LineReceiver):
 		print "data written"
 		self.sendLine("Connect\n")
 		self.g.main()
-	#def dataReceived(self, data):
-	#	print data
 	def lineReceived(self, line):
                 data = line
                 print "Data coming in from server: ", data
                 data = data.split(':')
                 if data[0] == "turnchange":
 		    print "WE ACTUALLY GOT SOMETHING!"
-                    self.g.turn = data[1]
+                    self.g.turn = int(data[1])
                 elif data[0] == "xx":
-                    self.g.xPositionInteger = data[1]
+                    self.g.xPositionInteger = int(data[1])
                     print "WE CHANGED X VALUE"
                 elif data[0] == "yy":
-                    self.g.yPositionInteger = data[1]
+                    self.g.yPositionInteger = int(data[1])
                     print "WE CHANGED Y VALUE"
+		elif data[0] == "clickedXCoordinate":
+		    self.g.clickedX = int(data[1])
+		elif data[0] == "clickedYCoordinate":
+		    self.g.clickedY = int(data[1])
 
 class ClientConnectionFactory(ClientFactory):
 	def __init__(self):

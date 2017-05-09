@@ -145,7 +145,7 @@ class Board:
                                             self.surface.fill(RED, tempRect)
                                         #self.surface.fill(WHITE, tempRect)
                                             # self.player2.hoverX(tempRect.centerx, tempRect.centery)
-                        elif event.type == pygame.MOUSEBUTTONDOWN:
+                        elif event.type == pygame.MOUSEBUTTONDOWN or self.turn == 2:
                             pos = pygame.mouse.get_pos()
                             for box in self.myTiles.boxes:
                                 tempRect = pygame.Rect(box)
@@ -154,16 +154,26 @@ class Board:
                                     yPosition = pos[1] / 200
                                     xPosition = int(xPosition)
                                     yPosition = int(yPosition)
+				    if self.turn == 1:
+					clickedX = xPosition
+					clickedY = yPosition
                                     print("HERE ARE THE VALUES of click: ", xPosition, " ", yPosition)
-                                    if self.board_to_check[xPosition][yPosition] == 0:
+                                    v = clickedX
+                                    w = clickedY
+                                    if self.board_to_check[v][w] == 0:
+					if self.turn == 1:
+					    cX = "clickedXCoordinate:"+xPosition+"\n"
+					    cY = "clickedYCoordinate:"+yPosition+"\n"
+					    self.conn.sendLine(cX)
+					    self.conn.sendLine(cY)
                                         self.surface.fill(WHITE, tempRect)
-                                        if self.turn == 1:
+                                        if elf.turn == 1:
                                             self.player1.drawO(tempRect.centerx, tempRect.centery)
-                                            self.board_to_check[xPosition][yPosition] = 1
+                                            self.board_to_check[v][w] = 1
                                             self.turn = 2
                                         else:
                                             self.player2.drawX(tempRect.centerx, tempRect.centery)
-                                            self.board_to_check[xPosition][yPosition] = 2
+                                            self.board_to_check[v][w] = 2
                                             self.turn = 1
                                         s = ""
             			        if self.turn == 2:
@@ -307,12 +317,15 @@ class ServerConnection(LineReceiver):
 		#print data
                 data = data.split(':')
                 if data[0] == "turnchange":
-                    self.turn = data[1]
+                    self.g.turn = int(data[1])
                 elif data[0] == "xx":
-                    self.xPositionInteger = data[1]
+                    self.g.xPositionInteger = int(data[1])
                 elif data[0] == "yy":
-                    self.yPositionInteger = data[1]
-
+                    self.g.yPositionInteger = int(data[1])
+		elif data[0] == "clickedXCoordinate":
+		    self.g.clickedX = int(data[1])
+		elif data[0] == "clickedYCoordinate":
+		    self.g.clickedY = int(data[1])
 class ServerConnectionFactory(Factory):
 	def __init__(self):
 		self.connection = ServerConnection()
