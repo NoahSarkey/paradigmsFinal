@@ -1,5 +1,6 @@
 #!/usr/bin/env python2.7
 
+from twisted.protocols.basic import LineReceiver
 from twisted.internet.protocol import Factory
 from twisted.internet.protocol import Protocol
 from twisted.internet import reactor
@@ -70,16 +71,17 @@ class Boxes(object):
 class Board:
 	def __init__(self, conn):
 		self.conn = conn
-
+                #print "BOARD"
         def main(self):
+                #print "MAIN"
 		#print "give it up kid"
                 # Initialize the game engine
                 pygame.init()
                 pygame.font.init()
                 myfont = pygame.font.SysFont('Comic Sans MS', 100)
                 self.turn = 1
-                self.xx = 4
-                self.yy = 4
+                self.xPositionInteger = 0
+                self.yPositionInteger = 0
                 '''
                 # Define the colors we will use in RGB format
                 BLACK = (  0,   0,   0)
@@ -101,13 +103,16 @@ class Board:
                 #Loop until the user clicks the close button.
                 done = False
                 clock = pygame.time.Clock()
-                self.board_to_check = [[0]*3 for _ in range(3)]
+                self.board_to_check =[[0]*3 for _ in range(3)]
                 self.screen.fill(WHITE)
                  
+                #print "LOOPING CALL"
 		lc = LoopingCall(self.game_loop)
 		lc.start(1/60)
 
 	def game_loop(self):
+
+		    print "CURRENT TURN IS: ", self.turn
 		    #print "got to game_loop"
 		#for i in range(1):
 		#while not done
@@ -125,13 +130,14 @@ class Board:
                                 if tempRect.collidepoint(pos[0], pos[1]):
                                     xPosition = pos[0]/200
                                     yPosition = pos[1]/200
-                                    xPositionInteger = int(xPosition)
-                                    yPositionInteger = int(yPosition)
-                                    if self.board_to_check[xPositionInteger][yPositionInteger] == 0:
-                                        xx = "xx:"+xPositionInteger
-                                        yy = "yy:"+yPositionInteger
-                                        self.conn.transport.write(xx)
-                                        self.conn.transport.write(yy)
+                                    if self.turn == 1:
+                                        self.xPositionInteger = int(xPosition)
+                                        self.yPositionInteger = int(yPosition)
+                                    if self.board_to_check[self.xPositionInteger][self.yPositionInteger] == 0:
+                                        xx = "xx:"+str(self.xPositionInteger)+"\n"
+                                        yy = "yy:"+str(self.yPositionInteger)+"\n"
+                                        self.conn.sendLine(xx)
+                                        self.conn.sendLine(yy)
                                         self.surface.fill(WHITE, tempRect)
                                         if self.turn == 1:
                                             self.surface.fill(BLUE, tempRect)
@@ -148,7 +154,7 @@ class Board:
                                     yPosition = pos[1] / 200
                                     xPosition = int(xPosition)
                                     yPosition = int(yPosition)
-                                    # print("HERE ARE THE VALUES: ", xPosition, " ", yPosition)
+                                    print("HERE ARE THE VALUES of click: ", xPosition, " ", yPosition)
                                     if self.board_to_check[xPosition][yPosition] == 0:
                                         self.surface.fill(WHITE, tempRect)
                                         if self.turn == 1:
@@ -159,18 +165,19 @@ class Board:
                                             self.player2.drawX(tempRect.centerx, tempRect.centery)
                                             self.board_to_check[xPosition][yPosition] = 2
                                             self.turn = 1
-                                    s = ""     
-            			    if self.turn == 2:
-                        		#self.turn = 1
-                        		s = "turnchange:2\n"
-                    		    else:
-                        		#self.turn = 2
-                        		s = "turnchange:1\n"
-                        		# "highlightmouse:4\n"
-            			    self.conn.transport.write(s)
+                                        s = ""
+            			        if self.turn == 2:
+                        		    #self.turn = 1
+                        		    s = "turnchange:2\n"
+                    		        else:
+                        		    #self.turn = 2
+                        		    s = "turnchange:1\n"
+                        		    # "highlightmouse:4\n"
+            			        print "we are transporting ", s
+                                        self.conn.sendLine(s)
 
                                         # pygame.draw.circle(self.screen, (250,250,250), (tempRect.centerx, tempRect.centery), 10)
-                    
+
                     for box in self.myTiles.boxes:
                         pygame.draw.rect(self.screen, BLACK, box, 2)
                         
@@ -282,17 +289,22 @@ class Board:
                         return 2
                 return 0	# nobody has won yet
 
-class ServerConnection(Protocol):
+class ServerConnection(LineReceiver):
 	def __init__(self):
-		print "here 2"
+		#print "here 2"
+		self.delimiter = "\n"
 		self.g = Board(self)
-		print "declared"
+		#print "declared"
 	def connectionMade(self):
-		print "here 3"
+		#pass
+		#print "here 3"
 		self.g.main()
-	def dataReceived(self, data):
-		print "here 4"
-		print data
+		#self.transport.write("HELLO\n")
+	def lineReceived(self, line):
+		#print "here 4"
+                data = line
+                print "Data being brought in from client: ", data
+		#print data
                 data = data.split(':')
                 if data[0] == "turnchange":
                     self.turn = data[1]

@@ -1,5 +1,6 @@
 #!/usr/bin/env python2.7
 
+from twisted.protocols.basic import LineReceiver
 from twisted.internet.protocol import ClientFactory
 from twisted.internet.protocol import Protocol
 from twisted.internet import reactor
@@ -35,7 +36,7 @@ class Player1(object):
         print ("it lit")
         pygame.draw.circle(self.gs.screen, WHITE, (centerx, centery), 50, 2 )
 
-# x's 
+# x's
 class Player2(object):
     def __init__(self, gs):
         self.gs = gs
@@ -55,7 +56,7 @@ class Boxes(object):
     def __init__(self, gs):
         self.gs = gs
         self.boxes = []
-        
+
         # Initializing List of Rects to be used for collision
 
         # Top Row Rects
@@ -71,15 +72,17 @@ class Boxes(object):
 class Board:
 	def __init__(self, conn):
 		self.conn = conn
-
+                print "Board Initialized"
         def main(self):
+                print "in client main"
     		# Initialize the game engine
     		pygame.init()
     		pygame.font.init()
     		myfont = pygame.font.SysFont('Comic Sans MS', 100)
-    		self.turn = 1
-                self.xx = 4
-                self.yy = 4
+    		self.turn = 2
+                self.xPositionInteger = 0
+                self.yPositionInteger = 0
+                print "variables declared"
     		'''
     		# Define the colors we will use in RGB format
     		BLACK = (  0,   0,   0)
@@ -92,7 +95,7 @@ class Board:
     		self.size = [600, 600]
     		self.screen = pygame.display.set_mode(self.size)
     		self.surface = pygame.display.get_surface()
-     
+
     		pygame.display.set_caption("Tic Tac Toe")
     		self.myTiles = Boxes(self)
     		self.player1 = Player1(self)
@@ -103,45 +106,58 @@ class Board:
     		self.clock = pygame.time.Clock()
     		self.board_to_check = [[0]*3 for _ in range(3)]
     		self.screen.fill(WHITE)
-    
+                print "looping call next"
     		lc = LoopingCall(self.game_loop)
     		lc.start(1/60)
 
     	def game_loop(self):
             	    #print "got to game_loop"
 
-                #while not done:
-                #for i in range(1):
                     # This limits the while loop to a max of 10 times per second.
                     # Leave this out and we will use all CPU we can.
                     #self.clock.tick(10)
-                     
+                    #print "A"
                     for event in pygame.event.get(): # User did something
+                        #print "B"
                         if event.type == pygame.QUIT: # If user clicked close
                             done=True # Flag that we are done so we exit this loop
                         elif event.type == pygame.MOUSEMOTION or self.turn == 1:
                             pos = pygame.mouse.get_pos()
+                            #print "C"
                             for box in self.myTiles.boxes:
+				#print "C1"
                                 tempRect = pygame.Rect(box)
                                 if tempRect.collidepoint(pos[0], pos[1]):
-                                    xPosition = pos[0]/200
+                                    #print "C2"
+				    xPosition = pos[0]/200
                                     yPosition = pos[1]/200
-                                    xPosition = int(xPosition)
-                                    yPosition = int(yPosition)
-                                    if self.board_to_check[xPosition][yPosition] == 0:
-                                        xx = "xx:"+xPosition
-                                        yy = "yy:"+yPosition
-                                        self.conn.transport.write(xx)
-                                        self.conn.transport.write(yy)
+				    if self.turn == 2:
+                                    	self.xPositionInteger = int(xPosition)
+                                    	self.yPositionInteger = int(yPosition)
+                                    #print "C3.1 ", self.xPositionInteger, self.yPositionInteger
+				    #print "C3 ", self.board_to_check[self.xPositionInteger][self.yPositionInteger]
+                                    #print "C3B"
+				    if self.board_to_check[self.xPositionInteger][self.yPositionInteger] == 0:
+                                        #print "C4"
+                                        if self.turn == 2:
+                                            xx = "xx:"+str(self.xPositionInteger)+"\n"
+                                            yy = "yy:"+str(self.yPositionInteger)+"\n"
+                                            #print "C5"
+                                            self.conn.sendLine(xx)
+                                            self.conn.sendLine(yy)
+                                        #print "C6"
                                         self.surface.fill(WHITE, tempRect)
+                                        #print "C7"
                                         if self.turn == 1:
                                             self.surface.fill(BLUE, tempRect)
                                         else:
                                             self.surface.fill(RED, tempRect)
                                         #self.surface.fill(WHITE, tempRect)
                                             # self.player2.hoverX(tempRect.centerx, tempRect.centery)
-                        elif event.type == pygame.MOUSEBUTTONDOWN:
+                                    #print "no loop C"
+                        elif event.type == pygame.MOUSEBUTTONDOWN and self.turn == 2:
                             pos = pygame.mouse.get_pos()
+                            #print "D"
                             for box in self.myTiles.boxes:
                                 tempRect = pygame.Rect(box)
                                 if tempRect.collidepoint(pos[0], pos[1]):
@@ -161,10 +177,17 @@ class Board:
                                             self.board_to_check[xPosition][yPosition] = 2
                                             self.turn = 1
                                         # pygame.draw.circle(self.screen, (250,250,250), (tempRect.centerx, tempRect.centery), 10)
-                    
+                                        s = ""
+                                        if self.turn == 2:
+                                            s = "turnchange:2\n"
+                                        else:
+                                            s = "turnchange:1\n"
+                                        print "Turnchange being sent across the wire ", s
+                                        self.conn.sendLine(s)
+                    #print "E"
                     for box in self.myTiles.boxes:
                         pygame.draw.rect(self.screen, BLACK, box, 2)
-                        
+
                     #print("CHECK WIN? ", self.checkWin())
                     #print(self.board_to_check)
                     if self.checkWin() != 0:
@@ -184,16 +207,18 @@ class Board:
                     pygame.display.flip()
                     #pygame.time.delay(2500)
                  
+                    #print "D"
 
-                    s = ""     
-                    if self.turn == 2:
-                        self.turn = 1
-                        s = "turnchange:1\n"
-                    else:
-                        self.turn = 2
-                        s = "turnchange:2\n"
+                    #s = ""     
+                    #if self.turn == 2:
+                    #    self.turn = 1
+                    #     s = "turnchange:2\n"
+                    #else:
+                    #    self.turn = 2
+                    #     s = "turnchange:1\n"
                     # "highlightmouse:4\n"
-                    self.conn.transport.write(s)
+                    #print "transporting turn"
+                    #self.conn.transport.write(s)
 
         def checkWin(self):
                 # Checks Column
@@ -279,26 +304,29 @@ class Board:
                         return 2
                 return 0	# nobody has won yet
 
-class ClientConnection(Protocol):
+class ClientConnection(LineReceiver):
 	def __init__(self):
 		print "in init"
+		self.delimiter = "\n"
 		self.g = Board(self)
 	def connectionMade(self):
 		print "data written"
-		self.transport.write("Connect")
+		self.sendLine("Connect\n")
 		self.g.main()
-	def dataReceived(self, data):
-                print "here 4"
-                print data
+	#def dataReceived(self, data):
+	#	print data
+	def lineReceived(self, line):
+                data = line
+                print "Data coming in from server: ", data
                 data = data.split(':')
                 if data[0] == "turnchange":
 		    print "WE ACTUALLY GOT SOMETHING!"
-                    self.turn = data[1]
+                    self.g.turn = data[1]
                 elif data[0] == "xx":
-                    self.xPositionInteger = data[1]
+                    self.g.xPositionInteger = data[1]
                     print "WE CHANGED X VALUE"
                 elif data[0] == "yy":
-                    self.yPositionInteger = data[1]
+                    self.g.yPositionInteger = data[1]
                     print "WE CHANGED Y VALUE"
 
 class ClientConnectionFactory(ClientFactory):
@@ -308,7 +336,7 @@ class ClientConnectionFactory(ClientFactory):
 		return self.conn
 
 if __name__ == '__main__':
-	reactor.connectTCP("localhost", 40098, ClientConnectionFactory())
+	reactor.connectTCP("ash.campus.nd.edu", 40098, ClientConnectionFactory())
 	reactor.run()
         #Game = Board()
         #Game.main()
